@@ -1,0 +1,57 @@
+import axios from 'axios';
+import React, { useState } from 'react';
+
+const ImageGenerator = () => {
+  const [text, setText] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const generate = async () => {
+    setIsLoading(true);
+    setError(null);
+    const apikey = 'sk-TF5-FUxldMjS_Z8LoT8oAUeIXWK0Ir3wrvuEDvfJkcT3BlbkFJY_fL-RFBR4AgsCYf2FRl4U1hXsqu9LyLvDrMuAPbAA'; // Replace with your actual API key
+    try {
+      const response = await axios('https://api.openai.com/v1/images/generations',
+        {
+          prompt:text,
+          n:1,
+          size:'1024x1024'
+        },
+        {
+          headers:{
+            'Authorization':`Bearer ${apikey}`
+          }
+
+
+          
+        }
+      );
+      const imageUrl = response.data.data[0].url;
+      setImageUrl(imageUrl);
+    } catch (error) {
+      console.log('Error:', error);
+      setError('An error occurred');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div>
+      <input 
+        type="text" 
+        placeholder='Enter prompt...' 
+        onChange={(e) => setText(e.target.value)} 
+      />
+      <br />
+      <button onClick={generate} disabled={isLoading}>
+        {isLoading ? 'Generating...' : 'Generate Image'}
+      </button>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {imageUrl && <img src={imageUrl} alt="Generated" />}
+    </div>
+  );
+};
+
+export default ImageGenerator;
